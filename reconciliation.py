@@ -114,8 +114,9 @@ class SearchLoC:
                 for i in r:
                     if isinstance(i, list) and i[0] == "atom:title":
                         heading = i[2]
-                    elif isinstance(i, list) and i[0] == "atom:id":
-                        term_id = i[2].split('/')[-1]
+                    elif isinstance(i, list) and i[0] == "atom:link":
+                        if isinstance(i[1], dict) and "type" not in i[1]:
+                            term_id = i[1]["href"]
                 if term_id != "" and heading != "":
                     id_pairs.append((heading, term_id))
         return id_pairs
