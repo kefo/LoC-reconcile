@@ -81,7 +81,7 @@ def jsonpify(obj):
     except KeyError:
         return jsonify(obj)
 
-
+# curl -i -X POST -F 'queries={ "q0" : { "query" : "Knolles, Richard, 1550?", "type": "names" }}' http://localhost:5000/reconcile/LoC
 @app.route("/reconcile/LoC", methods=['POST', 'GET'])
 def reconcile():
     queries = request.form.get('queries')
