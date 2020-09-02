@@ -46,8 +46,8 @@ class SearchLoC:
     def __init__(self, term, term_type=''):
         self._term_type = term_type
         self.term = term
-        self.suggest_uri = "http://id.loc.gov/authorities" + self.term_type + "/suggest/?q="
-        self.__raw_uri_start = "http://id.loc.gov/search/?format=json&q="
+        self.suggest_uri = "https://id.loc.gov/authorities" + self.term_type + "/suggest/?q="
+        self.__raw_uri_start = "https://id.loc.gov/search/?format=json&q="
         self.__raw_uri_end = "&q=cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fauthorities%2F" + self.term_type[1:]
 
     def __str__(self):
@@ -90,7 +90,7 @@ class SearchLoC:
         return id_pairs
 
     def did_you_mean(self):
-        dym_base = "http://id.loc.gov/authorities" + self.term_type + "/didyoumean/?label="
+        dym_base = "https://id.loc.gov/authorities" + self.term_type + "/didyoumean/?label="
         dym_url = dym_base + quote(self.term)
         self.LOGGER.debug("querying didyoumean with URL {}".format(str(dym_url)))
         response = requests.get(dym_url)
