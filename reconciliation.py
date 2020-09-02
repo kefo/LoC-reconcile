@@ -47,7 +47,7 @@ class SearchLoC:
         self._term_type = term_type
         self.term = term
         self.suggest_uri = "http://id.loc.gov/authorities" + self.term_type + "/suggest/?q="
-        self.__raw_uri_start = "http://id.loc.gov/search/?q="
+        self.__raw_uri_start = "http://id.loc.gov/search/?format=json&q="
         self.__raw_uri_end = "&q=cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fauthorities%2F" + self.term_type[1:]
 
     def __str__(self):
@@ -102,19 +102,22 @@ class SearchLoC:
         self.LOGGER.debug("Web scraping page 1 of web results...".format(self.term))
         search_uri = self.__raw_uri_start + quote(self.term) + self.__raw_uri_end
         response = requests.get(search_uri)
-        parser = bSoup(response.text, 'html.parser')
-        pattern = re.compile("<td><a href=\"/authorities" + self.term_type + ".+</a></td>")
-        search_results = re.findall(pattern, str(parser))
-        return self.__process_results_raw(search_results)
+        rjson = response.json()
+        return self.__process_results_raw(rjson)
 
     def __process_results_raw(self, results):
         id_pairs = []
         for r in results:
-            heading = re.search("\">(.+)</a></td>", r).group(1)
-            term_id = re.search("<td><a href=\"/authorities" + self.term_type + "/(.+)\">", r).group(1)
-            term_id = self.get_term_uri(term_id)
-            if term_id and heading:
-                id_pairs.append((heading, term_id))
+            if isinstance(r, list) and r[0] == "atom:entry":
+                heading = ""
+                term_id = ""
+                for i in r:
+                    if isinstance(i, list) and i[0] == "atom:title":
+                        heading = i[2]
+                    elif isinstance(i, list) and i[0] == "atom:id":
+                        term_id = i[2].split('/')[-1]
+                if term_id != "" and heading != "":
+                    id_pairs.append((heading, term_id))
         return id_pairs
 
     def full_search(self, suggest=True, didyoumean=True, scrape=True):
